@@ -1,0 +1,128 @@
+{
+  "de": {
+    "game_select": {
+      "title": "Universal MapVeto",
+      "subtitle": "Wählen Sie Ihr Spiel",
+      "cs2": "Counter-Strike 2",
+      "rainbow_six": "Rainbow Six Siege",
+      "manual": "Bedienung",
+      "exit": "Programm beenden"
+    },
+    "setup": {
+      "title_cs2": "CS2 Map Veto Setup",
+      "title_r6": "R6 Map Veto Setup",
+      "format": "Veto-Format",
+      "bo1": "Best of 1",
+      "bo2": "Best of 2",
+      "bo3": "Best of 3",
+      "bo5": "Best of 5",
+      "team1": "Team 1",
+      "team2": "Team 2",
+      "team_name": "Team-Name",
+      "team_shortname": "Team-Kurzname (z.B. FNC)",
+      "logo_url": "Logo URL",
+      "logo_file": "oder Datei hochladen",
+      "map_pool": "Map-Pool",
+      "available_maps": "Verfügbare Maps",
+      "selected_maps": "Ausgewählte Maps",
+      "warning_maps": "⚠️ zu wenige Maps! Empfohlen:",
+      "text_color": "Textfarbe",
+      "white": "Weiß",
+      "black": "Schwarz",
+      "starting_team": "Startendes Team",
+      "start_veto": "Veto starten",
+      "reset": "Zurücksetzen"
+    },
+    "veto_controls": {
+      "pick": "Pick",
+      "ban": "Ban",
+      "strip": "Strip",
+      "decider": "Decider (letzte Map)",
+      "undo": "Rückgängig"
+    },
+    "scores": {
+      "title": "Scores",
+      "maps_won": "Maps gewonnen",
+      "series_score": "Serienstand",
+      "map": "Map",
+      "score": "Punktestand",
+      "round": "Runde",
+      "plus": "+",
+      "minus": "-"
+    },
+    "result": {
+      "title": "Map Veto Ergebnis",
+      "no_data": "Warten auf Veto-Prozess...",
+      "vs": "VS"
+    },
+    "common": {
+      "back": "Zurück",
+      "continue": "Weiter",
+      "save": "Speichern",
+      "cancel": "Abbrechen"
+    }
+  },
+  "en": {
+    "game_select": {
+      "title": "Universal MapVeto",
+      "subtitle": "Choose Your Game",
+      "cs2": "Counter-Strike 2",
+      "rainbow_six": "Rainbow Six Siege",
+      "manual": "Manual",
+      "exit": "Exit Program"
+    },
+    "setup": {
+      "title_cs2": "CS2 Map Veto Setup",
+      "title_r6": "R6 Map Veto Setup",
+      "format": "Veto Format",
+      "bo1": "Best of 1",
+      "bo2": "Best of 2",
+      "bo3": "Best of 3",
+      "bo5": "Best of 5",
+      "team1": "Team 1",
+      "team2": "Team 2",
+      "team_name": "Team Name",
+      "team_shortname": "Team Shortname (e.g. FNC)",
+      "logo_url": "Logo URL",
+      "logo_file": "or upload file",
+      "map_pool": "Map Pool",
+      "available_maps": "Available Maps",
+      "selected_maps": "Selected Maps",
+      "warning_maps": "⚠️ not enough maps! Recommended:",
+      "text_color": "Text Color",
+      "white": "White",
+      "black": "Black",
+      "starting_team": "Starting Team",
+      "start_veto": "Start Veto",
+      "reset": "Reset"
+    },
+    "veto_controls": {
+      "pick": "Pick",
+      "ban": "Ban",
+      "strip": "Strip",
+      "decider": "Decider (last map)",
+      "undo": "Undo"
+    },
+    "scores": {
+      "title": "Scores",
+      "maps_won": "Maps Won",
+      "series_score": "Series Score",
+      "map": "Map",
+      "score": "Score",
+      "round": "Round",
+      "plus": "+",
+      "minus": "-"
+    },
+    "result": {
+      "title": "Map Veto Result",
+      "no_data": "Waiting for veto process...",
+      "vs": "VS"
+    },
+    "common": {
+      "back": "Back",
+      "continue": "Continue",
+      "save": "Save",
+      "cancel": "Cancel"
+    }
+  }
+}

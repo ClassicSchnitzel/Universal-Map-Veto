@@ -8,14 +8,40 @@ import threading
 import sys
 import atexit
 from pathlib import Path
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session
 
 app = Flask(__name__)
+app.secret_key = 'universal-mapveto-secret-key-2026'  # Für Sessions
 
 # Globaler State
 veto_state = {}
 lock = threading.Lock()
 tray_icon = None
+
+# Lade Übersetzungen
+translations = {}
+try:
+    translations_path = Path(__file__).resolve().parent / "translations.json"
+    with open(translations_path, 'r', encoding='utf-8') as f:
+        translations = json.load(f)
+except Exception as e:
+    print(f"[WARN] Translations konnten nicht geladen werden: {e}")
+    translations = {"de": {}, "en": {}}
+
+def get_language():
+    """Gibt die aktuelle Sprache aus der Session zurück (Standard: de)"""
+    try:
+        return session.get('language', 'de')
+    except:
+        return 'de'
+
+def get_translations():
+    """Gibt die Übersetzungen für die aktuelle Sprache zurück"""
+    try:
+        lang = get_language()
+        return translations.get(lang, translations.get('de', {}))
+    except:
+        return translations.get('de', {})
 
 def _lock_file_path():
     return Path(__file__).resolve().parent / ".mapveto.lock"
@@ -126,27 +152,35 @@ def start_tray_icon():
 
 @app.route('/')
 def index():
-  return render_template('game_select.html')
+    return render_template('game_select.html', t=get_translations(), lang=get_language())
 
 @app.route('/cs2')
 def cs2():
-    return render_template('CS-index.html')
+    return render_template('CS-index.html', t=get_translations(), lang=get_language())
 
 @app.route('/r6')
 def r6():
-    return render_template('R6-index.html')
+    return render_template('R6-index.html', t=get_translations(), lang=get_language())
 
 @app.route('/result')
 def result():
-    return render_template('result.html')
+    return render_template('result.html', t=get_translations(), lang=get_language())
 
 @app.route('/scores')
 def scores():
-    return render_template('scores.html')
+    return render_template('scores.html', t=get_translations(), lang=get_language())
+
+@app.route('/set_language/<lang>')
+def set_language(lang):
+    """Setzt die Sprache in der Session"""
+    if lang in ['de', 'en']:
+        session['language'] = lang
+        return jsonify({'status': 'success', 'language': lang})
+    return jsonify({'status': 'error', 'message': 'Invalid language'}), 400
 
 @app.route('/obs')
 def obs():
-    return render_template('obs-overlay.html')
+    return render_template('obs-overlay.html', t=get_translations(), lang=get_language())
 
 @app.route('/anleitung')
 def anleitung():

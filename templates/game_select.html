@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="{{ lang }}">
 <head>
   <meta charset="UTF-8">
-  <title>Universal MapVeto - Spielauswahl</title>
+  <title>{{ t.game_select.title }}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/static/shared.css">
   <style>
@@ -23,6 +23,7 @@
       text-align: center;
       box-shadow: 0 8px 28px #000a;
       width: min(520px, 92vw);
+      position: relative;
     }
     h1 {
       margin: 0 0 10px 0;
@@ -64,6 +65,36 @@
       color: #888;
       font-size: 0.9em;
     }
+    .lang-switcher {
+      position: static;
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .lang-btn {
+      padding: 8px 16px;
+      background: #333;
+      color: #fff;
+      border: 2px solid #444;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95em;
+      font-weight: bold;
+      transition: all 0.2s;
+      font-family: 'BebasNeue', Arial, sans-serif;
+      letter-spacing: 0.5px;
+    }
+    .lang-btn:hover {
+      background: #444;
+      border-color: #00be29;
+    }
+    .lang-btn.active {
+      background: #00be29;
+      color: #000;
+      border-color: #00be29;
+      font-weight: bold;
+    }
     @media (max-width: 520px) {
       .btn-row { grid-template-columns: 1fr; }
     }
@@ -71,17 +102,32 @@
 </head>
 <body>
   <div class="card">
-    <h1>Map Veto Tool</h1>
-    <div class="subtitle">Bitte wähle dein Spiel aus</div>
+    <h1>{{ t.game_select.title }}</h1>
+    <div class="subtitle">{{ t.game_select.subtitle }}</div>
     <div class="btn-row">
-      <button class="game-btn" onclick="window.location.href='/cs2'">CS2</button>
-      <button class="game-btn secondary" onclick="window.location.href='/r6'">Rainbow Six Siege</button>
+      <button class="game-btn" onclick="window.location.href='/cs2'">{{ t.game_select.cs2 }}</button>
+      <button class="game-btn secondary" onclick="window.location.href='/r6'">{{ t.game_select.rainbow_six }}</button>
     </div>
     <div style="margin-top:16px;">
-      <button class="game-btn secondary" onclick="window.open('/anleitung', '_blank')">Bedienung</button>
-      <button class="game-btn" onclick="if(confirm('Programm wirklich beenden?')) { window.location.href='/exit'; }" style="margin-left: 12px; background: #d32f2f; color: #fff;">Programm beenden</button>
+      <button class="game-btn secondary" onclick="window.open('/anleitung', '_blank')">{{ t.game_select.manual }}</button>
+      <button class="game-btn" onclick="if(confirm('{{ t.game_select.exit }}?')) { window.location.href='/exit'; }" style="margin-left: 12px; background: #d32f2f; color: #fff;">{{ t.game_select.exit }}</button>
+    </div>
+    <div class="lang-switcher">
+      <button class="lang-btn {{ 'active' if lang == 'de' else '' }}" onclick="setLanguage('de')">DE</button>
+      <button class="lang-btn {{ 'active' if lang == 'en' else '' }}" onclick="setLanguage('en')">EN</button>
     </div>
     <div class="small">by ClassicSchnitzel</div>
   </div>
+  <script>
+    function setLanguage(lang) {
+      fetch(`/set_language/${lang}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'success') {
+            window.location.reload();
+          }
+        });
+    }
+  </script>
 </body>
 </html>
