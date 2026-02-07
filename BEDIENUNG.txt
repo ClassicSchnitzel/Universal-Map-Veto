@@ -1,0 +1,183 @@
+╔═══════════════════════════════════════════════════════════════════════════╗
+║           CS2 MAP VETO TOOL - BEDIENUNGSANLEITUNG                         ║
+║                   Created by ClassicSchnitzel                              ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+ÜBERBLICK
+═════════
+Das CS2 Map Veto Tool ist ein Tool zur Verwaltung von Map-Vetos für CS2 
+Wettkämpfe. Es unterstützt BO1, BO3 und BO5 Formate und ermöglicht es,
+Team-Logos hochzuladen und Scores in Echtzeit zu verfolgen.
+
+
+ERSTE SCHRITTE
+══════════════
+
+1. Starten Sie "MapVeto.exe"
+   → Ein Fenster öffnet sich mit der URL "http://localhost:5000/"
+   → Automatisch sollten sich zwei weitere Fenster öffnen:
+      - Fenster 2: Veto-Ergebnis (result)
+      - Fenster 3: Score-Tracking (scores)
+
+2. Falls die Fenster nicht automatisch öffnen:
+   - Öffnen Sie manuell:
+     • http://localhost:5000/          (Kontrollfenster)
+     • http://localhost:5000/result    (Veto-Ergebnis)
+     • http://localhost:5000/scores    (Scores)
+
+3. Nutzung im Stream (OBS o. Ä.)
+   - Fügen Sie folgende Seiten als Browserquellen hinzu:
+     • http://localhost:5000/result    (Veto-Ergebnis)
+     • http://localhost:5000/scores    (Scores)
+   - Empfohlene Auflösung der Browserquelle: 1920x1080
+
+
+
+SCHRITT-FÜR-SCHRITT BEDIENUNG
+═══════════════════════════════
+
+SCHRITT 1: SETUP
+───────────────
+Im Kontrollfenster (localhost:5000/):
+
+  a) Wähle dein Veto-Format:
+     ○ BO1 (Best of 1 - 1 Map, nur Bans)
+     ○ BO3 (Best of 3 - 3 Maps)
+     ○ BO5 (Best of 5 - 5 Maps)
+
+  b) Wähle die Map-Pool (Karten, aus denen gepickt wird):
+     • Klick auf die gewünschten Maps
+     • Mindestens 7 Maps sollten ausgewählt sein
+
+  c) Gib die Team-Namen ein:
+     • Team 1 Name: [z.B. "Team A"]
+     • Team 2 Name: [z.B. "Team B"]
+
+  d) (Optional) Lade Team-Logos hoch:
+     • Klick auf "Logo hochladen"
+     • Wähle eine Bilddatei (JPG, PNG)
+     • Logo wird direkt angezeigt
+
+  e) Klick "START VETO"
+     → Der Veto-Prozess beginnt
+
+
+SCHRITT 2: VETO-PROZESS
+───────────────────────
+Im Veto-Prozess zeigt das Tool an:
+
+  • Wer ist dran? (Team 1 oder Team 2)
+  • Aktion: "Team X bannt Map Y" oder "Team X pickt Map Z"
+  • Verfügbare Maps: Klick auf eine Map zum Bannen/Picken
+
+Beispiel BO3:
+  1. Team 1 bannt 1 Map
+  2. Team 2 bannt 1 Map
+  3. Team 1 pickt 1 Map
+  4. Team 2 pickt 1 Map
+  5. Team 1 bannt 1 Map
+  6. Team 2 bannt 1 Map
+  → Die verbleibende Map ist der Decider
+
+Nach jedem Veto-Schritt:
+  ✓ Ergebnis-Fenster aktualisiert automatisch
+  ✓ Informationen sind sofort sichtbar
+
+
+SCHRITT 3: SCORE-TRACKING
+─────────────────────────
+Im Score-Fenster (localhost:5000/scores):
+
+  • Zeigt alle gespielten Maps
+  • Für jede Map:
+    - Name der Map
+    - Buttons [−] und [+] zum Anpassen der Scores
+    - Aktueller Score anzeigen
+
+  • Score-Eingabe:
+    1. Klick [-] um 1 Punkt abzuziehen
+    2. Klick [+] um 1 Punkt hinzuzufügen
+    3. Scores aktualisieren sofort
+
+  • Team-Gesamtsiege:
+    - Oben links: Team 1 Siege
+    - Oben rechts: Team 2 Siege
+    - Eine Map ist "gewonnen" wenn:
+      • BO1/BO3/BO5 Scoring: Standard CS2 Regeln
+      • 16+ Punkte mit Vorsprung
+      • Nach OT: 13 Punkte mit Vorsprung
+
+
+BESONDERHEITEN
+═══════════════
+
+BO1 Format:
+  • Nur Bans, keine Picks
+  • Teams bannen abwechselnd, bis 1 Map übrig ist
+  • Diese Map wird gespielt
+
+BO3 Format:
+  • 3 Maps werden gespielt
+  • Teams picken und bannen abwechselnd
+
+BO5 Format:
+  • 5 Maps werden gespielt
+  • Längerer Banning- und Pick-Prozess
+
+
+DATENPEICHERUNG
+════════════════
+Das Tool speichert automatisch:
+  • Veto-Ergebnisse in "vetoresult.json"
+  • Diese Datei wird im gleichen Ordner wie die .exe erstellt
+  • Nützlich für Export oder Archivierung
+
+
+TIPPS & TRICKS
+═══════════════
+
+1. Mehrere Monitore:
+   - Öffne die Fenster auf verschiedenen Monitoren
+   - Index auf Monitor 1 (Kontrolle)
+   - Result auf Monitor 2 (für Zuschauer/Stream)
+   - Scores auf Monitor 3 (Statistik)
+
+2. Screenshot/Aufnahme:
+   - Du kannst jederzeit Screenshots machen
+   - Die Fenster sind optimiert für Streaming/Recording
+
+3. Logos:
+   - Beste Größe: Quadratische Bilder
+   - Formate: JPG, PNG
+   - Empfohlene Größe: 200x200px
+
+4. Neues Veto:
+   - Klick "VETO ZURÜCKSETZEN" um von vorne anzufangen
+   - Alle Scores und Vetos werden gelöscht
+
+
+FEHLERSUCHE
+════════════
+
+Problem: Fenster öffnet sich nicht
+  → Stelle sicher, dass Port 5000 nicht belegt ist
+  → Falls nötig, schließe andere Programme
+
+Problem: Logos laden nicht
+  → Überprüfe Dateigröße und Format (JPG/PNG)
+  → Versuche erneut hochzuladen
+
+Problem: Scores synchronisieren nicht
+  → Aktualisiere die Seite (F5)
+  → Manchmal braucht es 1-2 Sekunden
+
+
+SUPPORT
+════════
+Dieses Tool wurde von ClassicSchnitzel erstellt.
+Weitere Infos und Updates findest du auf GitHub oder im Discord.
+
+
+Version: 1.0
+Datum: 2026
+═════════════════════════════════════════════════════════════════════════════

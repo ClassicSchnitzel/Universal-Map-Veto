@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Ergebnisse</title>
+  <link rel="stylesheet" href="/static/shared.css">
+  <style>
+    body {
+      background: #00000000;
+      color: #f8000000;
+      font-family: 'BebasNeue', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .result-header {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 40px;
+      margin: 40px 0 20px 0;
+      font-family: 'BebasNeue',sans-serif; 
+    }
+    .result-team {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 2.1em;
+      font-weight: bold;
+      color: #ffffff;
+    }
+    .result-team.left { justify-self: end; align-items: flex-end; }
+    .result-team.right { justify-self: start; align-items: flex-start; }
+    .center-title { justify-self: center; text-align: center; font-size: 2em; color:#ffffff; }
+    .result-team .maps-won {
+      font-size: 60px;
+      background: #0000005d;
+      border-radius: 0px;
+      padding: 3px 24px;
+      margin-top: 10px;
+      color: #ffffff;
+      border: 0px solid #000000;
+      box-shadow: 0 2px 8px #000a;
+    }
+    .maps-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+      margin: 0 auto 36px auto;
+      max-width: 1800px;
+    }
+    .map-card {
+      background: #ffd900;
+      border-radius: 0px;
+      box-shadow: 0 5px 18px #0008;
+      border: 2px solid #ffd900;
+      width: 300px;
+      min-width: 180px;
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow: hidden;
+      transition: transform 0.14s;
+      position: relative;
+    }
+
+    .map-img-wrap {
+      position: relative;
+      width: 100%;
+      height: 500px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      border-radius: 0px 0px 0 0;
+      overflow: hidden;
+    }
+    .map-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border: none;
+      background: transparent;
+    }
+    .picker-label-box {
+      position: absolute;
+      left: 0; right: 0; bottom: 460px;
+      color: #ffffff;
+      text-align: center;
+      font-family: 'BebasNeue',sans-serif;
+      font-size: 20px;
+      font-weight: bold;
+      padding: 12px 8px 7px 8px;
+      letter-spacing: 0.8px;
+      text-shadow: 0 2px 10px #000c;
+      pointer-events: none;
+      border-radius: 0px 0px 0 0;
+    }
+    .map-score {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      color: #fff;
+      font-size: 2em;
+      font-family: 'BebasNeue',sans-serif;
+      font-weight: bold;
+      width: 100%;
+      text-align: center;
+      padding: 20px 0 12px 0;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 8px #000a;
+      border-radius: 0 0 0px 0px;
+      z-index: 3;
+      box-sizing: border-box;
+    }
+    .map-name {
+      font-size: 1.16em;
+      font-family: 'BebasNeue',sans-serif; 
+      font-weight: bold;
+      color: #ffffff;
+      text-align: center;
+      margin: 9px 0 7px 0;
+      letter-spacing: 0.2px;
+      text-shadow: 0 2px 10px #000a;
+    }
+    /* removed .map-picked-by - picked info is shown in the existing picker-label-box */
+    .map-winner {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 72px; /* sits above the map-score */
+      color: #ffd700;
+      font-size: 1.12em;
+      letter-spacing: 0.8px;
+      font-weight: bold;
+      text-align: center;
+      z-index: 4;
+      pointer-events: none;
+      text-shadow: 0 2px 8px #000a;
+    }
+    @media (max-width: 900px) {
+      .maps-grid { gap: 15px; }
+      .map-card { width: 44vw; min-width: 120px; }
+      .result-header { gap: 20px; }
+    }
+    .hint {
+      margin: 40px auto;
+      text-align: center;
+      font-size: 1.2em;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <div id="overlay"></div>
+  <script src="/static/shared.js"></script>
+  <script>
+    // Debug: Check if shared.js loaded
+    if (typeof loadVetoData !== 'function') {
+      console.error('ERROR: loadVetoData not found! shared.js might not have loaded.');
+      document.getElementById("overlay").innerHTML = '<div class="hint">Fehler: shared.js konnte nicht geladen werden!</div>';
+    }
+    if (typeof winnerOnMap !== 'function') {
+      console.error('ERROR: winnerOnMap not found! shared.js might not have loaded.');
+    }
+    if (typeof getMapImagesForGame !== 'function') {
+      console.error('ERROR: mapImages not found! shared.js might not have loaded.');
+    }
+
+    async function loadScores() {
+      try {
+        const data = await loadVetoData();
+
+      const overlay = document.getElementById("overlay");
+      if (!data || !data.team1 || !data.team2 || !data.format) {
+        overlay.innerHTML = '<div class="hint">Noch keine Daten...</div>';
+        return;
+      }
+
+      // Prüfe ob Veto komplett ist
+      const allMapsCount = (data.allMaps || []).length;
+      const vetoOrder = data.vetoOrder || [];
+      const bansCount = (data.bans || []).length;
+      const picksCount = (data.picks || []).length;
+      
+      let isVetoComplete = false;
+      if (data.format === "bo1") {
+        // BO1: Veto ist fertig, wenn alle außer 1 Map gebannt sind
+        isVetoComplete = bansCount === allMapsCount - 1;
+      } else {
+        // BO3/BO5: Veto ist fertig, wenn alle Aktionen aus vetoOrder erfüllt sind
+        isVetoComplete = (bansCount + picksCount) === vetoOrder.length;
+      }
+      
+      // Wenn Veto nicht komplett, zeige noch nichts
+      if (!isVetoComplete) {
+        overlay.innerHTML = '<div class="hint">Warte auf Veto-Abschluss...</div>';
+        return;
+      }
+      
+      // Ermittle gespielte Maps (nur Picks und ggf. Decider, keine Bans)
+      let playedMaps = [];
+      if (data.format === "bo1") {
+        // Bei BO1: Nur Decider anzeigen (da es nur Bans gibt)
+        const bannedMaps = (data.bans || []).map(b => b.map);
+        const decider = (data.allMaps || []).find(m => !bannedMaps.includes(m));
+        if (decider) playedMaps.push(decider);
+      } else if (data.format === "bo2") {
+        // Bei BO2: Nur Picks, kein Decider
+        playedMaps = (data.picks || []).map(p => p.map);
+      } else {
+        // Bei BO3/BO5: Picks und Decider anzeigen
+        playedMaps = (data.picks || []).map(p => p.map);
+        const bans = (data.bans || []).map(b => b.map);
+        const decider = (data.allMaps || []).find(m => ![...playedMaps, ...bans].includes(m));
+        if (decider) playedMaps.push(decider);
+      }
+
+      const displayTeamName = (teamName) => {
+        if (teamName === data.team1) return data.team1Short || data.team1;
+        if (teamName === data.team2) return data.team2Short || data.team2;
+        return teamName;
+      };
+
+      // Wer hat welche Map gepickt?
+      const pickedBy = {};
+      if (data.picks) data.picks.forEach(p => { pickedBy[p.map] = displayTeamName(p.team); });
+      if (playedMaps.length) {
+        const lastMap = playedMaps[playedMaps.length-1];
+        if (!pickedBy[lastMap]) pickedBy[lastMap] = "Decider";
+      }
+
+      // Map-Scores
+      const scores = data.scores || {};
+
+      // Sieger zählen (deine Regeln)
+      let team1Wins = 0, team2Wins = 0;
+      playedMaps.forEach(map => {
+        const s = scores[map] || {};
+        const s1 = Number(s[data.team1]) || 0;
+        const s2 = Number(s[data.team2]) || 0;
+        const winner = winnerOnMap(s1, s2, data.game || "cs2");
+        if (winner === 1) team1Wins++;
+        if (winner === 2) team2Wins++;
+      });
+
+      // Score-Bar (mit optionalen Logos)
+      let leftTeamHtml = '';
+      if (data.team1Logo) leftTeamHtml += `<img src="${data.team1Logo}" alt="" style="height:56px; margin-bottom:6px; ">`;
+      const textStyle = data.textColor ? `style="color:${data.textColor};"` : '';
+      leftTeamHtml += `<div ${textStyle}>${data.team1}</div><span class="maps-won" ${textStyle}>${team1Wins}</span>`;
+      let rightTeamHtml = '';
+      if (data.team2Logo) rightTeamHtml += `<img src="${data.team2Logo}" alt="" style="height:56px; margin-bottom:6px;">`;
+      rightTeamHtml += `<div ${textStyle}>${data.team2}</div><span class="maps-won" ${textStyle}>${team2Wins}</span>`;
+
+      let scoreBar = `
+        <div class="result-header">
+          <div class="result-team left">${leftTeamHtml}</div>
+          <div class="center-title" style="${data.textColor ? `color:${data.textColor};` : ''}">Ergebnisse</div>
+          <div class="result-team right">${rightTeamHtml}</div>
+        </div>
+      `;
+
+      // Map-Karten
+      let mapsRow = `<div class="maps-grid">` + playedMaps.map((map, idx) => {
+        const s = scores[map] || {};
+        const s1 = (s[data.team1] !== undefined ? s[data.team1] : 0);
+        const s2 = (s[data.team2] !== undefined ? s[data.team2] : 0);
+        const picked = pickedBy[map] || "Decider";
+        // Bild-URL
+        const images = getMapImagesForGame(data.game);
+        let img = images[map] || "https://img.icons8.com/fluency/96/landscape.png";
+        // Gewinner ermitteln
+        const mapWinner = winnerOnMap(Number(s1), Number(s2), data.game || "cs2");
+        let winStyle1 = "", winStyle2 = "";
+        if (mapWinner === 1) winStyle1 = "color:#ffd700;text-shadow:0 2px 6px #000b;";
+        if (mapWinner === 2) winStyle2 = "color:#ffd700;text-shadow:0 2px 6px #000b;";
+        const winnerName = mapWinner === 1 ? displayTeamName(data.team1) : (mapWinner === 2 ? displayTeamName(data.team2) : '');
+        const winnerStyle = data.textColor ? `style="color:${data.textColor};"` : '';
+        return `
+          <div class="map-card">
+            <div class="map-img-wrap">
+              <img class="map-img" src="${img}" alt="${map}">
+              <div class="picker-label-box">
+                ${picked === "Decider" ? "<span style='color:#ffd700;'>Decider</span>" : ("Picked by: " + picked)}
+              </div>
+              ${mapWinner !== 0 ? `<div class="map-winner" ${winnerStyle}>Winner: ${winnerName}</div>` : ''}
+              <div class="map-score">
+                <span style="${winStyle1}">${s1}</span> : <span style="${winStyle2}">${s2}</span>
+              </div>
+            </div>
+            <div class="map-name">${map}</div>
+          </div>
+        `;
+      }).join("") + `</div>`;
+
+      overlay.innerHTML = scoreBar + mapsRow;
+    } catch (error) {
+      console.error('Error in loadScores:', error);
+      const overlay = document.getElementById("overlay");
+      overlay.innerHTML = '<div class="hint">Fehler beim Laden der Daten: ' + error.message + '</div>';
+    }
+    }
+
+    // Auto-load every 1 second
+    setInterval(loadScores, 1000);
+
+    // Initial load
+    loadScores();
+  </script>
+  <footer style="position: fixed; bottom: 10px; right: 20px; color: #888; font-size: 0.85em;">
+    <p style="margin: 0;">MapVeto by <strong>ClassicSchnitzel</strong></p>
+  </footer>
+</body>
+</html>

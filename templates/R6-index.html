@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>R6-index</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/shared.css">
+  <style>
+    body { font-family: Arial, sans-serif; margin: 32px; background: #181c1f; color: #fff; }
+    h1 { color: #ffffff; font-family: 'BebasNeue', Arial, sans-serif; font-size: 50px; }
+    .subtitle { color: #ffffff; font-family: 'BebasNeue', Arial, sans-serif; font-size: 0.9em; margin-top: -40px; margin-bottom: 16px; }
+    label { display: block; margin-top: 16px; }
+    .field { margin-top: 16px; }
+    .field-label { display: block; margin-bottom: 8px; }
+    button { margin: 8px 0; padding: 8px 16px; background: #00be29; color: #fff; border: none; border-radius: 4px; cursor: pointer;}
+    button:disabled { background: #444; cursor: not-allowed; }
+    .maps { margin: 24px 0; }
+    .map-btn { margin: 4px; padding: 0; background: #263238; color: #fff; border: 2px solid #26a69a; border-radius: 4px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 140px; height: 140px; overflow: hidden; transition: all 0.2s; }
+    .map-btn:hover { border-color: #00be29; box-shadow: 0 0 8px rgba(0, 190, 41, 0.3); }
+    .map-btn-img { width: 100%; height: 100%; object-fit: cover; }
+    .map-btn-name { background: rgba(0, 0, 0, 0.7); width: 100%; padding: 6px; text-align: center; font-size: 0.9em; }
+    .map-btn:disabled { background: #444; opacity: 0.5; cursor: not-allowed; }
+    .pool-selector-btn { margin: 4px; padding: 10px 16px; background: #263238; color: #fff; border: 2px solid #555; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+    .pool-selector-btn:hover { background: #2a4a5a; }
+    .pool-selector-btn.selected { border-color: #00be29; background: #1a3a2a; box-shadow: 0 0 8px rgba(0, 190, 41, 0.4); }
+    .result-btn { font-size: 1.1em; margin-top: 32px; }
+    #filepicker-btn { background: #00be29; margin-left: 0px; }
+    .scores-section { margin-top: 40px; background: #222; border-radius: 8px; padding: 20px; max-width: 480px;}
+    .scores-section h2 { color: #26a69a; margin-top: 0;}
+    .score-table { width: 100%; border-collapse: collapse; margin-bottom: 12px;}
+    .score-table th, .score-table td { padding: 6px 4px; text-align: center;}
+    .score-table th { color: #26a69a;}
+    .score-btn, .score-btn-minus, .score-btn-plus {
+      font-size: 1.1em;
+      background: #26a69a;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      min-width: 32px;
+      padding: 6px 10px;
+      margin: 2px 2px;
+      cursor: pointer;
+      transition: background 0.18s;
+      vertical-align: middle;
+      display: inline-block;
+    }
+    .score-btn-minus { background: #e53935; }
+    .score-btn-minus:hover { background: #b71c1c; }
+    .score-btn-plus { background: #43a047; }
+    .score-btn-plus:hover { background: #1b5e20; }
+    .score-input {
+      width: 38px;
+      text-align: center;
+      font-size: 1.1em;
+      border-radius: 4px;
+      border: 1px solid #555;
+      background: #0d1013;
+      color: #fff;
+      margin: 0 4px;
+      vertical-align: middle;
+      padding: 3px 0;
+    }
+    /* Eingabefelder für Teams und Map-Pool */
+    #team1, #team2, #mappool {
+      width: 400px;
+      max-width: 100%;
+      box-sizing: border-box;
+      padding: 8px 12px;
+      border-radius: 4px;
+      border: 1px solid #555;
+      background: #0d1013;
+      color: #fff;
+      font-size: 1em;
+    }
+    /* Breiteres Eingabefeld für den Map-Pool */
+    #mappool {
+      width: 640px;
+    }
+    /* Log-Aktion Farben */
+    .action-ban { color: #e53935; font-weight: bold; }
+    .action-pick { color: #43a047; font-weight: bold; }
+    .action-strip { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 10px; }
+    .action-card { width: 150px; border: 2px solid #444; border-radius: 6px; overflow: hidden; background: #111; }
+    .action-card img { width: 100%; height: 90px; object-fit: cover; display: block; }
+    .action-card .action-team { padding: 6px 8px; font-weight: bold; text-align: center; }
+    .action-card .action-map { padding: 6px 8px; text-align: center; font-weight: bold; background: #1a1a1a; }
+    .action-card .action-type { padding: 6px 8px; text-align: center; font-weight: bold; color: #fff; }
+    .action-card.ban { border-color: #e53935; }
+    .action-card.pick { border-color: #43a047; }
+    .action-card.ban img { filter: grayscale(1); }
+    .action-card.ban .action-type { background: #e53935; }
+    .action-card.pick .action-type { background: #43a047; }
+    .action-card.decider { border-color: #ffd700; }
+    .action-card.decider .action-type { background: #ffd700; color: #111; }
+    /* Logo Input Layout */
+    .logo-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+    .logo-file-wrapper { position: relative; }
+    .logo-file-wrapper input[type="file"] { position: absolute; opacity: 0; width: 0; height: 0; }
+    .logo-file-btn { padding: 8px 16px; background: #26a69a; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 0.95em; }
+    .logo-file-btn:hover { background: #1f8a7d; }
+    .logo-url-input { width: 320px; max-width: 100%; box-sizing: border-box; padding: 8px 12px; border-radius: 4px; border: 1px solid #555; background: #0d1013; color: #fff; font-size: 0.95em; }
+    .name-row { display: flex; gap: 10px; align-items: center; }
+    .name-row input { width: 250px; }
+    .name-row .short-input { flex: 0 0 140px; }
+    .short-input { width: 100%; box-sizing: border-box; padding: 8px 12px; border-radius: 4px; border: 1px solid #555; background: #0d1013; color: #fff; font-size: 1em; }
+    /* Team Selector Buttons */
+    .team-selector { display: flex; gap: 8px; margin-top: 8px; }
+    .team-selector-btn { padding: 10px 20px; background: #263238; color: #fff; border: 2px solid #555; border-radius: 4px; cursor: pointer; transition: all 0.2s; font-size: 1em; }
+    .team-selector-btn:hover { background: #2a4a5a; }
+    .team-selector-btn.selected { border-color: #00be29; background: #1a3a2a; box-shadow: 0 0 8px rgba(0, 190, 41, 0.4); }
+    /* Format Selector Buttons */
+    .format-selector { display: flex; gap: 8px; margin-top: 8px; }
+    .format-btn { padding: 10px 20px; background: #263238; color: #fff; border: 2px solid #555; border-radius: 4px; cursor: pointer; transition: all 0.2s; font-size: 1em; }
+    .format-btn:hover { background: #2a4a5a; }
+    .format-btn.selected { border-color: #00be29; background: #1a3a2a; box-shadow: 0 0 8px rgba(0, 190, 41, 0.4); }
+    /* Color Selector */
+    .color-selector { display: flex; gap: 8px; margin-top: 8px; }
+    .color-btn { width: 50px; height: 32px; border: 2px solid #555; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+    .color-btn.white { background: #ffffff; }
+    .color-btn.black { background: #000000; }
+    .color-btn.selected { border-color: #00be29; box-shadow: 0 0 8px rgba(0, 190, 41, 0.4); }
+    /* Map Counter */
+    .map-counter { color: #26a69a; font-weight: bold; font-size: 1.1em; margin-bottom: 8px; }
+    /* OBS Links */
+    .obs-links {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #222;
+      border-radius: 8px;
+      padding: 16px 20px;
+      max-width: 420px;
+      border: 1px solid #26a69a;
+      z-index: 1000;
+    }
+    .obs-links h3 { margin: 0 0 8px 0; color: #26a69a; font-size: 0.95em; }
+    .obs-links a { color: #8fd3ff; text-decoration: none; word-break: break-all; font-size: 0.85em; }
+    .obs-links a:hover { text-decoration: underline; }
+    .obs-preview-btn { background: #26a69a; color: #fff; border: none; border-radius: 4px; cursor: pointer; padding: 6px 12px; font-size: 0.85em; margin-top: 8px; width: 100%; }
+  </style>
+</head>
+<body>
+  <h1>R6-index</h1>
+  <div class="subtitle">by ClassicSchnitzel</div>
+  <div style="margin-bottom:16px;">
+    <span id="file-status" style="margin-left:8px;font-size:0.95em;color:#8f8;">Verbunden ✔</span>
+  </div>
+  <div class="obs-links">
+    <div><strong style="color: #26a69a; font-size: 1em;">OBS Links</strong></div>
+    <div style="font-size: 0.90em; margin: 12px 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <button type="button" style="background: #26a69a; color: #fff; border: none; border-radius: 4px; cursor: pointer; padding: 6px 12px; font-size: 0.85em; white-space: nowrap;" onclick="copyToClipboard('http://localhost:5000/result')">Kopieren</button>
+      <span style="font-weight: 500;">Map Veto:</span>
+      <a href="http://localhost:5000/result" target="_blank" rel="noopener" style="color: #8fd3ff; text-decoration: none; font-size: 0.85em;">localhost:5000/result</a>
+    </div>
+    <div style="font-size: 0.90em; margin: 12px 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <button type="button" style="background: #26a69a; color: #fff; border: none; border-radius: 4px; cursor: pointer; padding: 6px 12px; font-size: 0.85em; white-space: nowrap;" onclick="copyToClipboard('http://localhost:5000/scores')">Kopieren</button>
+      <span style="font-weight: 500;">Ergebnisse:</span>
+      <a href="http://localhost:5000/scores" target="_blank" rel="noopener" style="color: #8fd3ff; text-decoration: none; font-size: 0.85em;">localhost:5000/scores</a>
+    </div>
+  </div>
+  <form id="setup">
+    <div class="field">
+      <div class="field-label">Match Format:</div>
+      <div class="format-selector">
+        <button type="button" class="format-btn" data-format="bo1">BO1</button>
+        <button type="button" class="format-btn" data-format="bo2">BO2</button>
+        <button type="button" class="format-btn selected" data-format="bo3">BO3</button>
+        <button type="button" class="format-btn" data-format="bo5">BO5</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Text Farbe:</div>
+      <div class="color-selector">
+        <div class="color-btn white selected" data-color="#ffffff"></div>
+        <div class="color-btn black" data-color="#000000"></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Team 1 Name:</div>
+      <div class="name-row">
+        <input required id="team1" autocomplete="off">
+        <input id="team1Short" class="short-input" placeholder="Kürzel" autocomplete="off">
+      </div>
+    </div>
+    <div class="field">
+      <div class="field-label">Team 1 Logo:</div>
+      <div class="logo-row">
+        <div class="logo-file-wrapper">
+          <input type="file" id="team1LogoInput" accept="image/*">
+          <button type="button" class="logo-file-btn" onclick="document.getElementById('team1LogoInput').click()">Datei auswählen</button>
+        </div>
+        <input type="text" id="team1LogoURL" class="logo-url-input" placeholder="oder Logo-URL eingeben" autocomplete="off">
+        <img id="team1LogoPreview" alt="" style="height:28px; display:none; border-radius:4px; border:1px solid #333;">
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Team 2 Name:</div>
+      <div class="name-row">
+        <input required id="team2" autocomplete="off">
+        <input id="team2Short" class="short-input" placeholder="Kürzel" autocomplete="off">
+      </div>
+    </div>
+    <div class="field">
+      <div class="field-label">Team 2 Logo:</div>
+      <div class="logo-row">
+        <div class="logo-file-wrapper">
+          <input type="file" id="team2LogoInput" accept="image/*">
+          <button type="button" class="logo-file-btn" onclick="document.getElementById('team2LogoInput').click()">Datei auswählen</button>
+        </div>
+        <input type="text" id="team2LogoURL" class="logo-url-input" placeholder="oder Logo-URL eingeben" autocomplete="off">
+        <img id="team2LogoPreview" alt="" style="height:28px; display:none; border-radius:4px; border:1px solid #333;">
+      </div>
+    </div>
+
+    <label>Veto beginnt mit:
+      <div class="team-selector">
+        <button type="button" class="team-selector-btn selected" data-team="1">Team 1</button>
+        <button type="button" class="team-selector-btn" data-team="2">Team 2</button>
+      </div>
+    </label>
+
+    <label>Map Pool auswählen: <span class="map-counter" id="mapCounter">0 / 8 Maps ausgewählt</span></label>
+    <div id="mapPoolSelector" style="margin: 16px 0; display: flex; flex-wrap: wrap; gap: 8px;"></div>
+    <button type="submit">Veto starten</button>
+    <button type="button" onclick="window.open('/anleitung', '_blank')" style="margin-left: 12px; background: #2196F3;">Bedienung</button>
+    <button type="button" onclick="window.location.href='/'" style="margin-left: 12px; background: #616161;">Zur Spielauswahl</button>
+    <button type="button" onclick="if(confirm('Programm wirklich beenden?')) { window.location.href='/exit'; }" style="margin-left: 12px; background: #d32f2f;">Programm Beenden</button>
+  </form>
+  <div id="veto" style="display:none;">
+    <div class="maps" id="maps"></div>
+    <div id="turn"></div>
+    <div class="action-strip" id="actionStrip"></div>
+    <div id="scores-section" class="scores-section" style="display:none;">
+      <h2>Scores eintragen</h2>
+      <table class="score-table">
+        <thead>
+          <tr>
+            <th>Map</th>
+            <th id="th-team1">Team 1</th>
+            <th id="th-team2">Team 2</th>
+          </tr>
+        </thead>
+        <tbody id="score-tbody"></tbody>
+      </table>
+    </div>
+    <button id="newVeto" class="result-btn" style="display:none;">Neues Veto starten</button>
+    <button id="exitBtn" class="result-btn" type="button" onclick="if(confirm('Programm wirklich beenden?')) { window.location.href='/exit'; }" style="display:none; background: #d32f2f; margin-left: 12px;">Programm Beenden</button>
+  </div>
+  <script src="/static/shared.js"></script>
+  <script>
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Link in Zwischenspeicher kopiert!');
+      }).catch(err => {
+        console.error('Fehler beim Kopieren:', err);
+        alert('Fehler beim Kopieren in Zwischenspeicher');
+      });
+    }
+
+    function getVetoOrder(format, team1, team2, mapCount, startTeam = 1) {
+      if (format === "bo1") {
+        return [
+          {action: "ban", team: 1},
+          {action: "ban", team: 2},
+          {action: "ban", team: 2},
+          {action: "ban", team: 1},
+          {action: "ban", team: 1},
+          {action: "ban", team: 2}
+        ];
+      } else if (format === "bo2") {
+        return [
+          {action: "ban", team: 1},
+          {action: "ban", team: 2},
+          {action: "ban", team: 1},
+          {action: "ban", team: 2},
+          {action: "ban", team: 1},
+          {action: "ban", team: 2},
+          {action: "pick", team: 1},
+          {action: "pick", team: 2}
+        ];
+      } else if (format === "bo3") {
+        if (startTeam === 1) {
+          return [
+            {action: "ban", team: 1},
+            {action: "ban", team: 2},
+            {action: "pick", team: 1},
+            {action: "pick", team: 2},
+            {action: "ban", team: 1},
+            {action: "ban", team: 2}
+          ];
+        } else {
+          return [
+            {action: "ban", team: 2},
+            {action: "ban", team: 1},
+            {action: "pick", team: 2},
+            {action: "pick", team: 1},
+            {action: "ban", team: 2},
+            {action: "ban", team: 1}
+          ];
+        }
+      } else if (format === "bo5") {
+        let order = [];
+        if (startTeam === 1) {
+          order.push({action: "ban", team: 1});
+          order.push({action: "ban", team: 2});
+        } else {
+          order.push({action: "ban", team: 2});
+          order.push({action: "ban", team: 1});
+        }
+        let t = startTeam;
+        for (let i = 0; i < 5; i++) {
+          order.push({action: "pick", team: t});
+          t = 3 - t;
+        }
+        return order;
+      }
+      return [];
+    }
+
+    const GAME_ID = "r6";
+    let state = {};
+    // Temporäre Variablen für ausgewählte Logos (Data URLs)
+    let team1LogoData = null;
+    let team2LogoData = null;
+
+    // Verfügbare Maps
+    const allAvailableMaps = [
+      "Bank",
+      "Border",
+      "Chalet",
+      "Clubhouse",
+      "Consulate",
+      "Kafe",
+      "Oregon",
+      "Skyscraper",
+      "Villa"
+    ];
+    const MAX_MAPS = 9;
+    
+    // Empfohlene Map-Anzahl basierend auf Format
+    function getRecommendedMapCount(format) {
+      if (format === "bo2") return 8;
+      if (format === "bo1" || format === "bo3" || format === "bo5") return 7;
+      return 7;
+    }
+    
+    function getCurrentFormat() {
+      const btn = document.querySelector('.format-btn.selected');
+      return btn ? btn.dataset.format : 'bo3';
+    }
+    
+    // Ausgewählte Maps für den Pool
+    let selectedMaps = [
+      "Bank",
+      "Border",
+      "Chalet",
+      "Clubhouse",
+      "Consulate",
+      "Kafe",
+      "Oregon"
+    ];
+
+    // ==== Datei-Handling ====
+    let syncActive = true;
+
+    async function initSaveFile() {
+      // Wird nicht mehr benötigt
+    }
+
+    // Logo-Datei einlesen und als Data-URL vorhalten
+    function handleLogoInput(fileInput, previewImgEl, assignTo) {
+      const f = fileInput.files && fileInput.files[0];
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const dataUrl = e.target.result;
+        previewImgEl.src = dataUrl;
+        previewImgEl.style.display = '';
+        if (assignTo === 1) team1LogoData = dataUrl;
+        if (assignTo === 2) team2LogoData = dataUrl;
+        // Wenn ein Veto bereits läuft, sofort speichern
+        if (state && state.team1) {
+          state.team1Logo = team1LogoData || state.team1Logo || null;
+          state.team2Logo = team2LogoData || state.team2Logo || null;
+          saveVetoBoth();
+        }
+      };
+      reader.readAsDataURL(f);
+    }
+
+    function normalizeLogoUrl(url) {
+      const trimmed = (url || '').trim();
+      if (!trimmed) return '';
+      if (/^https?:\/\//i.test(trimmed) || /^data:/i.test(trimmed)) return trimmed;
+      return 'https://' + trimmed;
+    }
+
+    function setLogoPreviewFromUrl(url, previewImgEl) {
+      if (!previewImgEl) return;
+      if (!url) {
+        previewImgEl.removeAttribute('src');
+        previewImgEl.style.display = 'none';
+        return;
+      }
+      previewImgEl.src = url;
+      previewImgEl.style.display = '';
+    }
+
+    function handleLogoUrlInput(inputEl, previewImgEl, assignTo) {
+      if (!inputEl) return;
+      const normalized = normalizeLogoUrl(inputEl.value);
+      if (normalized) inputEl.value = normalized;
+      setLogoPreviewFromUrl(normalized, previewImgEl);
+
+      // Datei hat Priorität: URL nur übernehmen, wenn keine Datei gewählt wurde
+      const hasFile = assignTo === 1
+        ? (document.getElementById('team1LogoInput')?.files?.length || 0) > 0
+        : (document.getElementById('team2LogoInput')?.files?.length || 0) > 0;
+      if (hasFile) return;
+
+      if (assignTo === 1) team1LogoData = null;
+      if (assignTo === 2) team2LogoData = null;
+
+      if (state && state.team1) {
+        if (assignTo === 1) state.team1Logo = normalized || null;
+        if (assignTo === 2) state.team2Logo = normalized || null;
+        saveVetoBoth();
+      }
+    }
+
+    async function saveVetoResultToFile(vetoData) {
+      if (!syncActive) return;
+      try {
+        // Speichere über API statt Datei
+        const response = await fetch('/api/state', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(vetoData)
+        });
+        
+        const responseText = await response.text();
+        
+        if (response.ok && response.status === 200) {
+          document.getElementById("file-status").innerText = "✔";
+          document.getElementById("file-status").style.color = "#43a047";
+          // Blende Erfolg nach 1.5 Sekunden aus
+          setTimeout(() => {
+            document.getElementById("file-status").innerText = "";
+          }, 1500);
+        } else {
+          throw new Error(`HTTP ${response.status}: ${responseText}`);
+        }
+      } catch (e) {
+        console.error("Save Error:", e);
+        document.getElementById("file-status").innerText = "⚠ Fehler";
+        document.getElementById("file-status").style.color = "#d32f2f";
+        // Blende Fehler nach 4 Sekunden aus
+        setTimeout(() => {
+          document.getElementById("file-status").innerText = "";
+        }, 4000);
+        // Retry nach 2 Sekunden
+        setTimeout(() => saveVetoBoth(), 2000);
+      }
+    }
+
+    function saveVetoBoth() {
+      const vetoData = {
+        game: GAME_ID,
+        format: state.format,
+        team1: state.team1,
+        team2: state.team2,
+        team1Short: state.team1Short || null,
+        team2Short: state.team2Short || null,
+        textColor: state.textColor || null,
+        allMaps: state.allMaps,
+        picks: state.picks,
+        bans: state.bans,
+        notPlayed: state.maps,
+        vetoOrder: state.vetoOrder,
+        scores: state.scores || {},
+        team1Logo: state.team1Logo || null,
+        team2Logo: state.team2Logo || null
+      };
+      // Schreibe das Flag NUR wenn es true ist!
+      if (state.vetoFinished === true) vetoData.vetoFinished = true;
+      localStorage.setItem("vetoResult", JSON.stringify(vetoData));
+      saveVetoResultToFile(vetoData);
+    }
+
+    document.getElementById("setup").onsubmit = function(e) {
+      e.preventDefault();
+      const format = document.querySelector('.format-btn.selected').dataset.format;
+      const team1 = document.getElementById("team1").value;
+      const team2 = document.getElementById("team2").value;
+      const team1Short = document.getElementById("team1Short").value.trim();
+      const team2Short = document.getElementById("team2Short").value.trim();
+      const maps = selectedMaps.length > 0 ? [...selectedMaps] : [];
+
+      if (maps.length < 2) {
+        alert("Bitte mindestens 2 Maps auswählen!");
+        return;
+      }
+      const recommended = getRecommendedMapCount(format);
+      if (maps.length < recommended) {
+        const proceed = confirm("Es wurden weniger Maps gewählt als empfohlen. Das Veto kann dadurch falsch angezeigt werden. Trotzdem fortfahren?");
+        if (!proceed) return;
+      }
+
+      const startTeam = parseInt(document.querySelector('.team-selector-btn.selected').dataset.team) || 1;
+      console.log("Start Team:", startTeam, "Format:", format);
+
+      // Get global text color
+      const textColor = document.querySelector('.color-btn.selected').dataset.color;
+
+      // Get logo - prioritize file upload over URL
+      const team1LogoURL = normalizeLogoUrl(document.getElementById("team1LogoURL").value);
+      const team2LogoURL = normalizeLogoUrl(document.getElementById("team2LogoURL").value);
+      const finalTeam1Logo = team1LogoData || team1LogoURL || null;
+      const finalTeam2Logo = team2LogoData || team2LogoURL || null;
+
+      state = {
+        game: GAME_ID,
+        format,
+        team1,
+        team2,
+        team1Short,
+        team2Short,
+        textColor,
+        allMaps: [...maps],
+        maps,
+        current: 0,
+        picks: [],
+        bans: [],
+        vetoOrder: getVetoOrder(format, team1, team2, maps.length, startTeam),
+        scores: {},
+        // include logos if selected
+        team1Logo: finalTeam1Logo,
+        team2Logo: finalTeam2Logo
+        // KEIN vetoFinished hier!
+      };
+
+      document.getElementById("setup").style.display = "none";
+      document.getElementById("veto").style.display = "";
+      syncActive = true;
+      saveVetoBoth();
+      nextStep();
+      renderScoresTable();
+    };
+
+    // Event-Listener für Logo-Inputs (sobald DOM-Elemente vorhanden sind)
+    document.addEventListener('DOMContentLoaded', function() {
+      const t1 = document.getElementById('team1LogoInput');
+      const t2 = document.getElementById('team2LogoInput');
+      const u1 = document.getElementById('team1LogoURL');
+      const u2 = document.getElementById('team2LogoURL');
+      const p1 = document.getElementById('team1LogoPreview');
+      const p2 = document.getElementById('team2LogoPreview');
+      if (t1) t1.onchange = function() { handleLogoInput(t1, p1, 1); };
+      if (t2) t2.onchange = function() { handleLogoInput(t2, p2, 2); };
+      if (u1) u1.oninput = function() { handleLogoUrlInput(u1, p1, 1); };
+      if (u2) u2.oninput = function() { handleLogoUrlInput(u2, p2, 2); };
+
+      // Format selector buttons
+      document.querySelectorAll('.format-btn').forEach(btn => {
+        btn.onclick = function() {
+          document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('selected'));
+          this.classList.add('selected');
+          applyRecommendedMapSelection();
+        };
+      });
+
+      // Color selector buttons (zentral, ohne data-team)
+      document.querySelectorAll('.color-btn').forEach(btn => {
+        btn.onclick = function() {
+          document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
+          this.classList.add('selected');
+        };
+      });
+
+      // Team selector buttons
+      document.querySelectorAll('.team-selector-btn').forEach(btn => {
+        btn.onclick = function() {
+          document.querySelectorAll('.team-selector-btn').forEach(b => b.classList.remove('selected'));
+          this.classList.add('selected');
+        };
+      });
+
+      // Initialisiere Map-Pool-Selector
+      applyRecommendedMapSelection();
+
+      // Falls lokale Daten vorhanden sind, zeige Vorschau
+      try {
+        const saved = JSON.parse(localStorage.getItem('vetoResult') || 'null');
+        if (saved && saved.team1Logo) { setLogoPreviewFromUrl(saved.team1Logo, p1); }
+        if (saved && saved.team2Logo) { setLogoPreviewFromUrl(saved.team2Logo, p2); }
+      } catch (e) {}
+    });
+
+    function initMapPoolSelector() {
+      const selector = document.getElementById("mapPoolSelector");
+      selector.innerHTML = "";
+      allAvailableMaps.forEach(map => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = map;
+        btn.className = "pool-selector-btn";
+        if (selectedMaps.includes(map)) {
+          btn.classList.add("selected");
+        }
+        btn.onclick = (e) => {
+          e.preventDefault();
+          toggleMapSelection(map, btn);
+        };
+        selector.appendChild(btn);
+      });
+      updateMapCounter();
+    }
+
+    function toggleMapSelection(map, btn) {
+      const idx = selectedMaps.indexOf(map);
+      if (idx > -1) {
+        // Deselect
+        selectedMaps.splice(idx, 1);
+        btn.classList.remove("selected");
+      } else {
+        // Select - check limit
+        if (selectedMaps.length >= MAX_MAPS) {
+          alert(`Maximal ${MAX_MAPS} Maps können ausgewählt werden!`);
+          return;
+        }
+        selectedMaps.push(map);
+        btn.classList.add("selected");
+      }
+      updateMapCounter();
+    }
+
+    function updateRecommendedCount() {
+      const format = getCurrentFormat();
+      const recommended = getRecommendedMapCount(format);
+      const counter = document.getElementById('mapCounter');
+      if (counter) {
+        counter.textContent = `${selectedMaps.length} / ${recommended} Maps ausgewählt`;
+        if (selectedMaps.length < recommended) {
+          counter.style.color = '#e53935';
+        } else {
+          counter.style.color = '#26a69a';
+        }
+      }
+    }
+
+    function updateMapCounter() {
+      updateRecommendedCount();
+    }
+
+    function applyRecommendedMapSelection() {
+      const format = getCurrentFormat();
+      const recommended = getRecommendedMapCount(format);
+      selectedMaps = allAvailableMaps.slice(0, recommended);
+      initMapPoolSelector();
+    }
+
+    function nextStep() {
+      updateMapButtons();
+      const step = state.vetoOrder[state.current];
+      // ---- HIER: Flag setzen, wenn nur noch eine Map übrig ist ----
+      if (state.maps && state.maps.length === 1 && !state.vetoFinished) {
+        state.vetoFinished = true;
+        saveVetoBoth();
+      }
+      if (!step) {
+        document.getElementById("turn").innerHTML = "Veto abgeschlossen!";
+        document.getElementById("maps").innerHTML = "";
+        document.getElementById("newVeto").style.display = "";
+        document.getElementById("exitBtn").style.display = "";
+        addDeciderCardIfAvailable();
+      } else {
+        const team = step.team === 1 ? state.team1 : state.team2;
+        document.getElementById("turn").innerHTML = `<b>${team}</b> ist am Zug: Map zum <b>${step.action === "ban" ? "Bannen" : "Picken"}</b> auswählen.`;
+        document.getElementById("exitBtn").style.display = "";
+      }
+      renderScoresTable();
+    }
+
+    function getMapImagePath(mapName) {
+      // R6-Maps mit Dateinamen
+      const mapImages = {
+        "Bank": "Bank.jpg",
+        "Border": "Border.jpg",
+        "Chalet": "Chalet.jpg",
+        "Clubhouse": "Clubhouse.jpg",
+        "Consulate": "Consulate.jpg",
+        "Kafe": "Kafe Dostoyevsky.jpg",
+        "Oregon": "Oregon.jpg",
+        "Skyscraper": "Skyscraper.jpg",
+        "Villa": "Villa.jpg"
+      };
+      return mapImages[mapName] ? `/static/Maps/${mapImages[mapName]}` : null;
+    }
+
+    function updateMapButtons() {
+      const mapsDiv = document.getElementById("maps");
+      mapsDiv.innerHTML = "";
+      mapsDiv.style.display = "flex";
+      mapsDiv.style.flexWrap = "wrap";
+      mapsDiv.style.gap = "8px";
+      mapsDiv.style.marginBottom = "20px";
+      state.maps.forEach(map => {
+        const btn = document.createElement("button");
+        btn.className = "map-btn";
+        btn.onclick = () => handleMapClick(map);
+        
+        const imagePath = getMapImagePath(map);
+        if (imagePath) {
+          const img = document.createElement("img");
+          img.src = imagePath;
+          img.className = "map-btn-img";
+          img.alt = map;
+          btn.appendChild(img);
+        }
+        
+        const nameDiv = document.createElement("div");
+        nameDiv.className = "map-btn-name";
+        nameDiv.textContent = map;
+        btn.appendChild(nameDiv);
+        
+        mapsDiv.appendChild(btn);
+      });
+    }
+
+    function handleMapClick(map) {
+      const step = state.vetoOrder[state.current];
+      if (!step) return;
+
+      const team = step.team === 1 ? state.team1 : state.team2;
+      const action = step.action;
+
+      if (action === "ban") state.bans.push({team, map});
+      else state.picks.push({team, map});
+
+      state.maps = state.maps.filter(m => m !== map);
+      state.current++;
+
+      // Log-Aktion
+      const actionText = action === "ban" ? "bannt" : "pickt";
+      const actionClass = action === "ban" ? "action-ban" : "action-pick";
+      const displayTeam = (team === state.team1 ? (state.team1Short || team) : (state.team2Short || team));
+
+      addActionCard(action, team, map);
+
+      saveVetoBoth();
+      nextStep();
+    }
+
+    function addActionCard(action, team, map) {
+      const strip = document.getElementById("actionStrip");
+      if (!strip) return;
+      const card = document.createElement("div");
+      card.className = `action-card ${action}`;
+
+      const img = document.createElement("img");
+      const images = (typeof getMapImagesForGame === "function") ? getMapImagesForGame(GAME_ID) : {};
+      const imagePath = images[map] || getMapImagePath(map) || "";
+      img.src = imagePath;
+      img.alt = map;
+      card.appendChild(img);
+
+      const teamDiv = document.createElement("div");
+      teamDiv.className = "action-team";
+      const displayTeam = (team === state.team1 ? (state.team1Short || team) : (state.team2Short || team));
+      teamDiv.textContent = displayTeam;
+      card.appendChild(teamDiv);
+
+      const mapDiv = document.createElement("div");
+      mapDiv.className = "action-map";
+      mapDiv.textContent = map;
+      card.appendChild(mapDiv);
+
+      const typeDiv = document.createElement("div");
+      typeDiv.className = "action-type";
+      typeDiv.textContent = action === "ban" ? "Ban" : "Pick";
+      card.appendChild(typeDiv);
+
+      strip.appendChild(card);
+    }
+
+    function addDeciderCardIfAvailable() {
+      if (state.format === "bo2") return;
+      if (state.deciderShown) return;
+      if (!state.maps || state.maps.length !== 1) return;
+      const map = state.maps[0];
+      const strip = document.getElementById("actionStrip");
+      if (!strip) return;
+      const card = document.createElement("div");
+      card.className = "action-card decider";
+      card.style.borderColor = "#ffd700";
+
+      const img = document.createElement("img");
+      const images = (typeof getMapImagesForGame === "function") ? getMapImagesForGame(GAME_ID) : {};
+      const imagePath = images[map] || getMapImagePath(map) || "";
+      img.src = imagePath;
+      img.alt = map;
+      card.appendChild(img);
+
+      const teamDiv = document.createElement("div");
+      teamDiv.className = "action-team";
+      teamDiv.textContent = map;
+      card.appendChild(teamDiv);
+
+      const typeDiv = document.createElement("div");
+      typeDiv.className = "action-type";
+      typeDiv.textContent = "Decider";
+      typeDiv.style.background = "#ffd700";
+      typeDiv.style.color = "#111";
+      card.appendChild(typeDiv);
+
+      strip.appendChild(card);
+      state.deciderShown = true;
+    }
+
+    document.getElementById("newVeto").onclick = function() {
+      state = {};
+      localStorage.removeItem("vetoResult");
+      document.getElementById("veto").style.display = "none";
+      document.getElementById("setup").style.display = "";
+      document.getElementById("actionStrip").innerHTML = "";
+      document.getElementById("maps").innerHTML = "";
+      document.getElementById("newVeto").style.display = "none";
+      document.getElementById("exitBtn").style.display = "none";
+      document.getElementById("scores-section").style.display = "none";
+      document.getElementById("score-tbody").innerHTML = "";
+      saveVetoBoth();
+      try {
+        fetch('/api/state', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({})
+        });
+      } catch (e) {}
+    };
+
+    function renderScoresTable() {
+      const scoreSection = document.getElementById("scores-section");
+      const tbody = document.getElementById("score-tbody");
+      tbody.innerHTML = "";
+
+      // Karten für Scores anzeigen sobald Picks vorhanden oder BO1 fertig
+      let playedMaps = [];
+      if (state.format === "bo1") {
+        if (state.maps.length === 1) playedMaps = [state.maps[0]];
+      } else if (state.format === "bo2") {
+        playedMaps = (state.picks || []).map(p => p.map);
+      } else {
+        playedMaps = (state.picks || []).map(p => p.map);
+        if (state.maps.length === 1) playedMaps.push(state.maps[0]);
+      }
+
+      if (!playedMaps.length) {
+        scoreSection.style.display = "none";
+        return;
+      }
+
+      scoreSection.style.display = "";
+      document.getElementById("th-team1").innerText = state.team1 || "Team 1";
+      document.getElementById("th-team2").innerText = state.team2 || "Team 2";
+
+      playedMaps.forEach(map => {
+        const tr = document.createElement("tr");
+        const s = state.scores && state.scores[map] ? state.scores[map] : {};
+        const s1 = s[state.team1] || 0;
+        const s2 = s[state.team2] || 0;
+        tr.innerHTML = `
+          <td>${map}</td>
+          <td>
+            <button class="score-btn-minus" data-team="1" data-map="${map}">-</button>
+            <input class="score-input" value="${s1}" readonly>
+            <button class="score-btn-plus" data-team="1" data-map="${map}">+</button>
+          </td>
+          <td>
+            <button class="score-btn-minus" data-team="2" data-map="${map}">-</button>
+            <input class="score-input" value="${s2}" readonly>
+            <button class="score-btn-plus" data-team="2" data-map="${map}">+</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      tbody.querySelectorAll('.score-btn-minus,.score-btn-plus').forEach(btn => {
+        btn.onclick = function() {
+          const map = this.getAttribute('data-map');
+          const team = this.getAttribute('data-team') === "1" ? state.team1 : state.team2;
+          if (!state.scores) state.scores = {};
+          if (!state.scores[map]) state.scores[map] = {};
+          let val = state.scores[map][team] || 0;
+          if (this.classList.contains('score-btn-plus')) val++;
+          else if (val > 0) val--;
+          state.scores[map][team] = val;
+          renderScoresTable();
+          saveVetoBoth();
+        };
+      });
+    }
+
+    // Öffne Result und Scores in separaten Tabs
+    function openPreview() {
+      console.log('openPreview Funktion aufgerufen');
+      
+      try {
+        const resultWindow = window.open('http://localhost:5000/result', 'veto_result');
+        console.log('Result Fenster geöffnet:', resultWindow);
+      } catch (e) {
+        console.error('Fehler beim Öffnen von Result:', e);
+      }
+      
+      // Verzögerung für Scores
+      setTimeout(function() {
+        console.log('Öffne Scores nach Verzögerung');
+        try {
+          const scoresWindow = window.open('http://localhost:5000/scores', 'veto_scores');
+          console.log('Scores Fenster geöffnet:', scoresWindow);
+        } catch (e) {
+          console.error('Fehler beim Öffnen von Scores:', e);
+        }
+      }, 500);
+    }
+
+    // Auto-exit when control window is closed
+    window.addEventListener('beforeunload', () => {
+      try {
+        navigator.sendBeacon('/exit');
+      } catch (e) {}
+    });
+  </script>
+</body>
+</html>

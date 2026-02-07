@@ -1,0 +1,10 @@
+/* shared.css - Gemeinsame Styles und Fonts */
+
+/* Lokale Bebas Neue Einbindung */
+@font-face {
+  font-family: 'BebasNeue';
+  src: url('fonts/BebasNeue-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}

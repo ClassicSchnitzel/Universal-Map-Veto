@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>MAP VETO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/shared.css">
+  <style>
+    html, body { box-sizing: border-box; }
+    body { 
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: #ffffff; 
+      font-family: 'BebasNeue','Conthrax',sans-serif; 
+      margin: 0; 
+      padding: 0; 
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h2 { text-align: center; margin: 40px 0 0 0; font-size: 2em; }
+    .teams { margin: 12px 0 24px 0; font-size: 50px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; width: 100%; gap: 0; }
+    .team-wrapper { display: flex; align-items: center; gap: 12px; }
+    .team-wrapper:first-child { justify-self: end; padding-right: 15px; flex-direction: row-reverse; }
+    .team-wrapper:last-child { justify-self: start; padding-left: 15px; flex-direction: row-reverse; }
+    .vs-label { font-size: 1.2em; font-weight: bold; color: #ffffff; white-space: nowrap; }
+    .team-logo { height: 60px; width: 60px; border-radius: 4px; border: none; object-fit: cover; }
+    .team-name { display: inline; vertical-align: middle; }
+    .maps-flex-wrap {
+      width: 100vw;
+      display: flex;
+      justify-content: center;
+      margin:48px 0;
+      min-height: 60px;
+      box-sizing: border-box;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    .maps-flex {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      justify-content: flex-start;
+      width: auto;
+    }
+    .map-field {
+      width: 230px; min-width: 100px;
+      height: 500px;
+      border-radius: 0px;
+      overflow: hidden;
+      background: #ff000000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 3px 14px #0007;
+      border: 3px solid #333;
+      position: relative;
+      margin-bottom: 0px;
+      opacity: 1;
+      transform: none;
+      transition: opacity 0.2s, transform 0.2s;
+      flex-shrink: 0;
+    }
+    .fade-in { animation: fadeInUp 0.45s cubic-bezier(.21,1.02,.73,1) both; }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(40px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .map-image-portrait {
+      width: 100%;
+      height: 500px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: stretch;
+    }
+    .map-label {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      padding: 8px 0 5px 0;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.15em;
+      letter-spacing: 1px;
+      color: #ffffff;
+      text-shadow: 0 2px 10px #000, 0 1px 3px #000a;
+      z-index: 2;
+      box-sizing: border-box;
+    }
+    .team-label {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      padding: 7px 0 7px 0;
+      text-align: center;
+      font-size: 1em;
+      font-weight: bold;
+      color: #ffffff;
+      text-shadow: 0 1px 3px #000a;
+      z-index: 2;
+      box-sizing: border-box;
+    }
+    .desc {
+      margin: 0px 0 0 0;
+      padding: 7px 10px 7px 10px;
+      width: 100%;
+      border-radius: 0px;
+      font-size: 1em;
+      font-weight: bold;
+      text-align: center;
+      letter-spacing: 0.8px;
+    }
+    .picked .desc { background: #23bb37; color: #ffffff; }
+    .banned .desc { background: #d32f2f; color: #ffffff; }
+    .picked { border-color: #23bb37; }
+    .banned { border-color: #d32f2f; }
+    .decider {
+      border: 3px solid #ffd900;
+      box-shadow: 0 0 20px #ffd70088;
+      background: #222207;
+    }
+    .decider .desc {
+      background: #ffd700;
+      color: #181c1f;
+      font-weight: bold;
+    }
+    @media (max-width: 1900px) {
+      .map-field { width: 200px; height: 400px; }
+      .map-image-portrait { height: 400px; }
+    }
+    @media (max-width: 900px) {
+      .map-field { width: 105px; height: 180px; font-size: 0.95em; }
+      .map-image-portrait { height: 120px; }
+    }
+    @media (max-width: 600px) {
+      .map-field { min-width: 78px; font-size: 0.92em; }
+      .maps-flex { gap: 5px; }
+      .map-image-portrait { height: 75px; }
+    }
+    #errorMsg {
+      color: #b71c1c;
+      text-align: center;
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 1.1em;
+    }
+  </style>
+</head>
+<body>
+  <h2 id="title" style="color: #ffffff;">MAP VETO</h2>
+  <div class="teams" id="teams"></div>
+  <div class="maps-flex-wrap">
+    <div id="maps" class="maps-flex"></div>
+  </div>
+  <div id="errorMsg"></div>
+
+  <script src="/static/shared.js"></script>
+  <script>
+    // Debug: Check if shared.js loaded
+    if (typeof getMapImagesForGame !== 'function') {
+      console.error('ERROR: mapImages not found! shared.js might not have loaded.');
+      document.getElementById("errorMsg").innerHTML = 'Fehler: shared.js konnte nicht geladen werden!';
+    }
+    if (typeof loadVetoData !== 'function') {
+      console.error('ERROR: loadVetoData not found! shared.js might not have loaded.');
+      document.getElementById("errorMsg").innerHTML = 'Fehler: loadVetoData nicht gefunden!';
+    }
+
+    let vetoDataGlobal = null;
+    let shownKeys = [];
+
+    function renderResult(data, prevKeys) {
+      const images = getMapImagesForGame(data.game);
+      const nodes = [];
+      const allMaps = data.allMaps || ["Mirage", "Inferno", "Nuke", "Ancient", "Anubis", "Overpass", "Vertigo"];
+      const displayTeamName = (teamName) => {
+        if (teamName === data.team1) return data.team1Short || data.team1;
+        if (teamName === data.team2) return data.team2Short || data.team2;
+        return teamName;
+      };
+
+      if (data.format === "bo1") {
+        const bans = data.bans || [];
+        const bannedMaps = bans.map(b => b.map);
+        const decider = allMaps.find(m => !bannedMaps.includes(m));
+        const showDecider = bans.length >= allMaps.length - 1;
+
+        bans.forEach(ban => {
+          const imageUrl = images[ban.map] || `https://via.placeholder.com/140x170/333/fff?text=${encodeURIComponent(ban.map)}`;
+          const temp = document.createElement("div");
+          temp.className = "map-field banned";
+          const banTeam = displayTeamName(ban.team);
+          temp.innerHTML = `<div class="map-image-portrait" style="background-image:url('${imageUrl}');"><div class="map-label">${ban.map}</div><div class="team-label">${banTeam}</div></div><div class="desc">Ban</div>`;
+          nodes.push({node: temp, key: "ban_" + ban.map});
+        });
+
+        if (showDecider && decider) {
+          const deciderKey = "decider_" + decider;
+          const temp = document.createElement("div");
+          temp.className = "map-field decider";
+          if (!prevKeys.includes(deciderKey)) temp.classList.add("fade-in");
+          const imageUrl = images[decider] || `https://via.placeholder.com/140x170/333/fff?text=${encodeURIComponent(decider)}`;
+          temp.innerHTML = `<div class="map-image-portrait" style="background-image:url('${imageUrl}');"><div class="map-label">${decider}</div><div class="team-label"></div></div><div class="desc">Decider Map</div>`;
+          nodes.push({node: temp, key: deciderKey});
+        }
+        return nodes;
+      }
+
+      // BO3/BO5
+      const actions = [];
+      if (Array.isArray(data.vetoOrder)) {
+        let b = 0, p = 0;
+        for (const step of data.vetoOrder) {
+          if (step.action === "ban" && data.bans && b < data.bans.length) {
+            actions.push({type: "banned", map: data.bans[b].map, team: data.bans[b].team});
+            b++;
+          } else if (step.action === "pick" && data.picks && p < data.picks.length) {
+            actions.push({type: "picked", map: data.picks[p].map, team: data.picks[p].team});
+            p++;
+          }
+        }
+      }
+
+      const pickedOrBanned = actions.map(a => a.map);
+      const isBo2 = data.format === "bo2";
+      const decider = isBo2 ? null : allMaps.find(m => !pickedOrBanned.includes(m));
+      const allActionsDone = isBo2 ? false : (pickedOrBanned.length >= allMaps.length - 1);
+
+      actions.forEach(action => {
+        const imageUrl = images[action.map] || `https://via.placeholder.com/140x170/333/fff?text=${encodeURIComponent(action.map)}`;
+        const desc = action.type === "picked" ? "Pick" : "Ban";
+        const key = action.type + "_" + action.map;
+        const isNew = !prevKeys.includes(key);
+        const temp = document.createElement("div");
+        temp.className = "map-field " + action.type;
+        if (isNew) temp.classList.add("fade-in");
+        const actionTeam = displayTeamName(action.team);
+        temp.innerHTML = `<div class="map-image-portrait" style="background-image:url('${imageUrl}');"><div class="map-label">${action.map}</div><div class="team-label">${actionTeam}</div></div><div class="desc">${desc}</div>`;
+        nodes.push({node: temp, key});
+      });
+
+      if (allActionsDone && decider) {
+        const deciderKey = "decider_" + decider;
+        const temp = document.createElement("div");
+        temp.className = "map-field decider";
+        if (!prevKeys.includes(deciderKey)) temp.classList.add("fade-in");
+        const imageUrl = images[decider] || `https://via.placeholder.com/140x170/333/fff?text=${encodeURIComponent(decider)}`;
+        temp.innerHTML = `<div class="map-image-portrait" style="background-image:url('${imageUrl}');"><div class="map-label">${decider}</div><div class="team-label"></div></div><div class="desc">Decider Map</div>`;
+        nodes.push({node: temp, key: deciderKey});
+      }
+
+      return nodes;
+    }
+
+    function showVetoData(js) {
+      vetoDataGlobal = js;
+      const prevKeys = shownKeys.slice();
+      const rendered = renderResult(js, prevKeys);
+      shownKeys = rendered.map(obj => obj.key);
+
+      const mapsDiv = document.getElementById("maps");
+      mapsDiv.innerHTML = "";
+      rendered.forEach(({node}) => mapsDiv.appendChild(node));
+
+      // Aktualisiere Titel mit Textfarbe
+      const titleEl = document.getElementById("title");
+      if (titleEl && js.textColor) {
+        titleEl.style.color = js.textColor;
+      }
+
+      try {
+        let teamsHtml = '<div class="team-wrapper">';
+        if (js.team1Logo) teamsHtml += `<img src="${js.team1Logo}" alt="" class="team-logo">`;
+        const textStyle = js.textColor ? `style="color:${js.textColor};"` : '';
+        teamsHtml += `<span class="team-name" ${textStyle}>${js.team1}</span></div>`;
+        if (js.team1 && js.team2) teamsHtml += `<span class="vs-label" ${textStyle}>VS</span>`;
+        teamsHtml += '<div class="team-wrapper">';
+        teamsHtml += `<span class="team-name" ${textStyle}>${js.team2}</span>`;
+        if (js.team2Logo) teamsHtml += `<img src="${js.team2Logo}" alt="" class="team-logo">`;
+        teamsHtml += '</div>';
+        document.getElementById("teams").innerHTML = teamsHtml;
+      } catch (e) {
+        document.getElementById("teams").innerText = js.team1 && js.team2 ? `${js.team1} vs ${js.team2}` : "";
+      }
+      document.getElementById("errorMsg").innerText = "";
+    }
+
+    // Auto-load every 1 second
+    setInterval(async () => {
+      const data = await loadVetoData();
+      if (data) {
+        showVetoData(data);
+      } else {
+        document.getElementById("errorMsg").innerText = "Kein Ergebnis gefunden.";
+        document.getElementById("maps").innerHTML = "";
+        document.getElementById("teams").innerText = "";
+      }
+    }, 1000);
+
+    // Initial load
+    (async () => {
+      const data = await loadVetoData();
+      if (data) showVetoData(data);
+    })();
+  </script>
+  <footer style="position: fixed; bottom: 10px; right: 20px; color: #888; font-size: 0.85em;">
+    <p style="margin: 0;">MapVeto by <strong>ClassicSchnitzel</strong></p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Universal MapVeto - Spielauswahl</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/shared.css">
+  <style>
+    body {
+      font-family: 'BebasNeue', Arial, sans-serif;
+      margin: 0;
+      background: #181c1f;
+      color: #fff;
+      display: flex;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      background: #222;
+      border-radius: 12px;
+      padding: 36px 40px;
+      text-align: center;
+      box-shadow: 0 8px 28px #000a;
+      width: min(520px, 92vw);
+    }
+    h1 {
+      margin: 0 0 10px 0;
+      font-size: 2.4em;
+      letter-spacing: 1px;
+    }
+    .subtitle {
+      color: #b0b0b0;
+      margin-bottom: 28px;
+      font-size: 1.05em;
+    }
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .game-btn {
+      padding: 14px 18px;
+      font-size: 1.1em;
+      background: #00be29;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+      font-family: 'BebasNeue', Arial, sans-serif;
+      letter-spacing: 0.6px;
+    }
+    .game-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px #0006;
+    }
+    .game-btn.secondary {
+      background: #2196F3;
+      color: #fff;
+    }
+    .small {
+      margin-top: 20px;
+      color: #888;
+      font-size: 0.9em;
+    }
+    @media (max-width: 520px) {
+      .btn-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Map Veto Tool</h1>
+    <div class="subtitle">Bitte wähle dein Spiel aus</div>
+    <div class="btn-row">
+      <button class="game-btn" onclick="window.location.href='/cs2'">CS2</button>
+      <button class="game-btn secondary" onclick="window.location.href='/r6'">Rainbow Six Siege</button>
+    </div>
+    <div style="margin-top:16px;">
+      <button class="game-btn secondary" onclick="window.open('/anleitung', '_blank')">Bedienung</button>
+      <button class="game-btn" onclick="if(confirm('Programm wirklich beenden?')) { window.location.href='/exit'; }" style="margin-left: 12px; background: #d32f2f; color: #fff;">Programm beenden</button>
+    </div>
+    <div class="small">by ClassicSchnitzel</div>
+  </div>
+</body>
+</html>
