@@ -161,6 +161,12 @@
 
   <script src="/static/shared.js"></script>
   <script>
+    // Make translations available from Flask
+    // eslint-disable-next-line
+    const t = {{ t|tojson }};
+    // eslint-disable-next-line
+    const lang = "{{ lang }}";
+    
     // Debug: Check if shared.js loaded
     if (typeof getMapImagesForGame !== 'function') {
       console.error('ERROR: mapImages not found! shared.js might not have loaded.');
@@ -205,7 +211,7 @@
           temp.className = "map-field decider";
           if (!prevKeys.includes(deciderKey)) temp.classList.add("fade-in");
           const imageUrl = images[decider] || `https://via.placeholder.com/140x170/333/fff?text=${encodeURIComponent(decider)}`;
-          temp.innerHTML = `<div class="map-image-portrait" style="background-image:url('${imageUrl}');"><div class="map-label">${decider}</div><div class="team-label"></div></div><div class="desc">Decider Map</div>`;
+          temp.innerHTML = `<div class="map-image-portrait" style="background-image:url('${imageUrl}');"><div class="map-label">${decider}</div><div class="team-label"></div></div><div class="desc">${t.common.decider_map}</div>`;
           nodes.push({node: temp, key: deciderKey});
         }
         return nodes;
@@ -233,7 +239,7 @@
 
       actions.forEach(action => {
         const imageUrl = images[action.map] || `https://via.placeholder.com/140x170/333/fff?text=${encodeURIComponent(action.map)}`;
-        const desc = action.type === "picked" ? "Pick" : "Ban";
+        const desc = action.type === "picked" ? t.common.pick : t.common.ban;
         const key = action.type + "_" + action.map;
         const isNew = !prevKeys.includes(key);
         const temp = document.createElement("div");
@@ -250,7 +256,7 @@
         temp.className = "map-field decider";
         if (!prevKeys.includes(deciderKey)) temp.classList.add("fade-in");
         const imageUrl = images[decider] || `https://via.placeholder.com/140x170/333/fff?text=${encodeURIComponent(decider)}`;
-        temp.innerHTML = `<div class="map-image-portrait" style="background-image:url('${imageUrl}');"><div class="map-label">${decider}</div><div class="team-label"></div></div><div class="desc">Decider Map</div>`;
+        temp.innerHTML = `<div class="map-image-portrait" style="background-image:url('${imageUrl}');"><div class="map-label">${decider}</div><div class="team-label"></div></div><div class="desc">${t.common.decider_map}</div>`;
         nodes.push({node: temp, key: deciderKey});
       }
 
@@ -278,7 +284,7 @@
         if (js.team1Logo) teamsHtml += `<img src="${js.team1Logo}" alt="" class="team-logo">`;
         const textStyle = js.textColor ? `style="color:${js.textColor};"` : '';
         teamsHtml += `<span class="team-name" ${textStyle}>${js.team1}</span></div>`;
-        if (js.team1 && js.team2) teamsHtml += `<span class="vs-label" ${textStyle}>VS</span>`;
+        if (js.team1 && js.team2) teamsHtml += `<span class="vs-label" ${textStyle}>${t.common.vs}</span>`;
         teamsHtml += '<div class="team-wrapper">';
         teamsHtml += `<span class="team-name" ${textStyle}>${js.team2}</span>`;
         if (js.team2Logo) teamsHtml += `<img src="${js.team2Logo}" alt="" class="team-logo">`;
@@ -296,7 +302,7 @@
       if (data) {
         showVetoData(data);
       } else {
-        document.getElementById("errorMsg").innerText = "Kein Ergebnis gefunden.";
+        document.getElementById("errorMsg").innerText = t.common.no_result;
         document.getElementById("maps").innerHTML = "";
         document.getElementById("teams").innerText = "";
       }
@@ -308,8 +314,6 @@
       if (data) showVetoData(data);
     })();
   </script>
-  <script src="/static/translate.js"></script>
-  <script src="/static/language-switcher.js"></script>
   <footer style="position: fixed; bottom: 10px; right: 20px; color: #888; font-size: 0.85em;">
     <p style="margin: 0;">MapVeto by <strong>ClassicSchnitzel</strong></p>
   </footer>

@@ -155,10 +155,16 @@
   <div id="overlay"></div>
   <script src="/static/shared.js"></script>
   <script>
+    // Make translations available from Flask
+    // eslint-disable-next-line
+    const t = {{ t|tojson }};
+    // eslint-disable-next-line
+    const lang = "{{ lang }}";
+    
     // Debug: Check if shared.js loaded
     if (typeof loadVetoData !== 'function') {
       console.error('ERROR: loadVetoData not found! shared.js might not have loaded.');
-      document.getElementById("overlay").innerHTML = '<div class="hint">Fehler: shared.js konnte nicht geladen werden!</div>';
+      document.getElementById("overlay").innerHTML = '<div class="hint">"' + t.common.shared_js_error + '"</div>';
     }
     if (typeof winnerOnMap !== 'function') {
       console.error('ERROR: winnerOnMap not found! shared.js might not have loaded.');
@@ -173,7 +179,7 @@
 
       const overlay = document.getElementById("overlay");
       if (!data || !data.team1 || !data.team2 || !data.format) {
-        overlay.innerHTML = '<div class="hint">Noch keine Daten...</div>';
+        overlay.innerHTML = '<div class="hint">' + t.common.no_data + '</div>';
         return;
       }
 
@@ -194,7 +200,7 @@
       
       // Wenn Veto nicht komplett, zeige noch nichts
       if (!isVetoComplete) {
-        overlay.innerHTML = '<div class="hint">Warte auf Veto-Abschluss...</div>';
+        overlay.innerHTML = '<div class="hint">' + t.common.waiting_veto + '</div>';
         return;
       }
       
@@ -256,7 +262,7 @@
       let scoreBar = `
         <div class="result-header">
           <div class="result-team left">${leftTeamHtml}</div>
-          <div class="center-title" style="${data.textColor ? `color:${data.textColor};` : ''}">Ergebnisse</div>
+          <div class="center-title" style="${data.textColor ? `color:${data.textColor};` : ''}">{{ t.common.results_label }}</div>
           <div class="result-team right">${rightTeamHtml}</div>
         </div>
       `;
@@ -282,9 +288,9 @@
             <div class="map-img-wrap">
               <img class="map-img" src="${img}" alt="${map}">
               <div class="picker-label-box">
-                ${picked === "Decider" ? "<span style='color:#ffd700;'>Decider</span>" : ("Picked by: " + picked)}
+                ${picked === t.common.decider_action ? "<span style='color:#ffd700;'>" + t.common.decider_action + "</span>" : (t.common.picked_by + " " + picked)}
               </div>
-              ${mapWinner !== 0 ? `<div class="map-winner" ${winnerStyle}>Winner: ${winnerName}</div>` : ''}
+              ${mapWinner !== 0 ? `<div class="map-winner" ${winnerStyle}>` + t.common.winner + ` ${winnerName}</div>` : ''}
               <div class="map-score">
                 <span style="${winStyle1}">${s1}</span> : <span style="${winStyle2}">${s2}</span>
               </div>
@@ -298,7 +304,7 @@
     } catch (error) {
       console.error('Error in loadScores:', error);
       const overlay = document.getElementById("overlay");
-      overlay.innerHTML = '<div class="hint">Fehler beim Laden der Daten: ' + error.message + '</div>';
+        overlay.innerHTML = '<div class="hint">' + t.common.data_load_error + ' ' + error.message + '</div>';
     }
     }
 
@@ -308,8 +314,6 @@
     // Initial load
     loadScores();
   </script>
-  <script src="/static/translate.js"></script>
-  <script src="/static/language-switcher.js"></script>
   <footer style="position: fixed; bottom: 10px; right: 20px; color: #888; font-size: 0.85em;">
     <p style="margin: 0;">MapVeto by <strong>ClassicSchnitzel</strong></p>
   </footer>

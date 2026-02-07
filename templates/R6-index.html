@@ -170,7 +170,7 @@
     </div>
 
     <div class="field">
-      <div class="field-label">Text Farbe:</div>
+      <div class="field-label">{{ t.common.text_color }}</div>
       <div class="color-selector">
         <div class="color-btn white selected" data-color="#ffffff"></div>
         <div class="color-btn black" data-color="#000000"></div>
@@ -178,79 +178,85 @@
     </div>
 
     <div class="field">
-      <div class="field-label">Team 1 Name:</div>
+      <div class="field-label">{{ t.common.team1_name }}</div>
       <div class="name-row">
         <input required id="team1" autocomplete="off">
-        <input id="team1Short" class="short-input" placeholder="Kürzel" autocomplete="off">
+        <input id="team1Short" class="short-input" placeholder="{{ t.common.shortcut }}" autocomplete="off">
       </div>
     </div>
     <div class="field">
-      <div class="field-label">Team 1 Logo:</div>
+      <div class="field-label">{{ t.common.team1_logo }}</div>
       <div class="logo-row">
         <div class="logo-file-wrapper">
           <input type="file" id="team1LogoInput" accept="image/*">
-          <button type="button" class="logo-file-btn" onclick="document.getElementById('team1LogoInput').click()">Datei auswählen</button>
+          <button type="button" class="logo-file-btn" onclick="document.getElementById('team1LogoInput').click()">{{ t.common.choose_file }}</button>
         </div>
-        <input type="text" id="team1LogoURL" class="logo-url-input" placeholder="oder Logo-URL eingeben" autocomplete="off">
+        <input type="text" id="team1LogoURL" class="logo-url-input" placeholder="{{ t.common.or_enter_url }}" autocomplete="off">
         <img id="team1LogoPreview" alt="" style="height:28px; display:none; border-radius:4px; border:1px solid #333;">
       </div>
     </div>
 
     <div class="field">
-      <div class="field-label">Team 2 Name:</div>
+      <div class="field-label">{{ t.common.team2_name }}</div>
       <div class="name-row">
         <input required id="team2" autocomplete="off">
-        <input id="team2Short" class="short-input" placeholder="Kürzel" autocomplete="off">
+        <input id="team2Short" class="short-input" placeholder="{{ t.common.shortcut }}" autocomplete="off">
       </div>
     </div>
     <div class="field">
-      <div class="field-label">Team 2 Logo:</div>
+      <div class="field-label">{{ t.common.team2_logo }}</div>
       <div class="logo-row">
         <div class="logo-file-wrapper">
           <input type="file" id="team2LogoInput" accept="image/*">
-          <button type="button" class="logo-file-btn" onclick="document.getElementById('team2LogoInput').click()">Datei auswählen</button>
+          <button type="button" class="logo-file-btn" onclick="document.getElementById('team2LogoInput').click()">{{ t.common.choose_file }}</button>
         </div>
-        <input type="text" id="team2LogoURL" class="logo-url-input" placeholder="oder Logo-URL eingeben" autocomplete="off">
+        <input type="text" id="team2LogoURL" class="logo-url-input" placeholder="{{ t.common.or_enter_url }}" autocomplete="off">
         <img id="team2LogoPreview" alt="" style="height:28px; display:none; border-radius:4px; border:1px solid #333;">
       </div>
     </div>
 
-    <label>Veto beginnt mit:
+    <label>{{ t.common.veto_begins_with }}
       <div class="team-selector">
-        <button type="button" class="team-selector-btn selected" data-team="1">Team 1</button>
-        <button type="button" class="team-selector-btn" data-team="2">Team 2</button>
+        <button type="button" class="team-selector-btn selected" data-team="1">{{ t.common.team1 }}</button>
+        <button type="button" class="team-selector-btn" data-team="2">{{ t.common.team2 }}</button>
       </div>
     </label>
 
-    <label>Map Pool auswählen: <span class="map-counter" id="mapCounter">0 / 8 Maps ausgewählt</span></label>
+    <label>{{ t.common.choose_map_pool }} <span class="map-counter" id="mapCounter">0 / 8 {{ t.common.maps_selected }}</span></label>
     <div id="mapPoolSelector" style="margin: 16px 0; display: flex; flex-wrap: wrap; gap: 8px;"></div>
-    <button type="submit">Veto starten</button>
-    <button type="button" onclick="window.open('/anleitung', '_blank')" style="margin-left: 12px; background: #2196F3;">Bedienung</button>
-    <button type="button" onclick="window.location.href='/'" style="margin-left: 12px; background: #616161;">Zur Spielauswahl</button>
-    <button type="button" onclick="if(confirm('Programm wirklich beenden?')) { window.location.href='/exit'; }" style="margin-left: 12px; background: #d32f2f;">Programm Beenden</button>
+    <button type="submit">{{ t.common.start_veto }}</button>
+    <button type="button" onclick="window.open('/anleitung', '_blank')" style="margin-left: 12px; background: #2196F3;">{{ t.common.open_manual }}</button>
+    <button type="button" onclick="window.location.href='/'" style="margin-left: 12px; background: #616161;">{{ t.common.back_to_game_select }}</button>
+    <button type="button" onclick="if(confirm('Programm wirklich beenden?')) { window.location.href='/exit'; }" style="margin-left: 12px; background: #d32f2f;">{{ t.common.exit_program }}</button>
   </form>
   <div id="veto" style="display:none;">
     <div class="maps" id="maps"></div>
     <div id="turn"></div>
     <div class="action-strip" id="actionStrip"></div>
     <div id="scores-section" class="scores-section" style="display:none;">
-      <h2>Scores eintragen</h2>
+      <h2>{{ t.common.enter_scores }}</h2>
       <table class="score-table">
         <thead>
           <tr>
             <th>Map</th>
-            <th id="th-team1">Team 1</th>
-            <th id="th-team2">Team 2</th>
+            <th id="th-team1">{{ t.common.team1 }}</th>
+            <th id="th-team2">{{ t.common.team2 }}</th>
           </tr>
         </thead>
         <tbody id="score-tbody"></tbody>
       </table>
     </div>
-    <button id="newVeto" class="result-btn" style="display:none;">Neues Veto starten</button>
-    <button id="exitBtn" class="result-btn" type="button" onclick="if(confirm('Programm wirklich beenden?')) { window.location.href='/exit'; }" style="display:none; background: #d32f2f; margin-left: 12px;">Programm Beenden</button>
+    <button id="newVeto" class="result-btn" style="display:none;">{{ t.common.new_veto }}</button>
+    <button id="exitBtn" class="result-btn" type="button" onclick="if(confirm('Programm wirklich beenden?')) { window.location.href='/exit'; }" style="display:none; background: #d32f2f; margin-left: 12px;">{{ t.common.exit_program }}</button>
   </div>
   <script src="/static/shared.js"></script>
   <script>
+    // Make translations available from Flask
+    // eslint-disable-next-line
+    const t = {{ t|tojson }};
+    // eslint-disable-next-line
+    const lang = "{{ lang }}";
+    
     function copyToClipboard(text) {
       navigator.clipboard.writeText(text).then(() => {
         alert('Link in Zwischenspeicher kopiert!');
@@ -642,7 +648,7 @@
       const recommended = getRecommendedMapCount(format);
       const counter = document.getElementById('mapCounter');
       if (counter) {
-        counter.textContent = `${selectedMaps.length} / ${recommended} Maps ausgewählt`;
+        counter.textContent = `${selectedMaps.length} / ${recommended} ${t.common.maps_selected}`;
         if (selectedMaps.length < recommended) {
           counter.style.color = '#e53935';
         } else {
@@ -678,7 +684,7 @@
         addDeciderCardIfAvailable();
       } else {
         const team = step.team === 1 ? state.team1 : state.team2;
-        document.getElementById("turn").innerHTML = `<b>${team}</b> ist am Zug: Map zum <b>${step.action === "ban" ? "Bannen" : "Picken"}</b> auswählen.`;
+        document.getElementById("turn").innerHTML = `<b>${team}</b> ${t.common.is_turn} <b>${step.action === "ban" ? t.common.to_ban : t.common.to_pick}</b> ${t.common.select_map}`;
         document.getElementById("exitBtn").style.display = "";
       }
       renderScoresTable();
@@ -933,8 +939,5 @@
       } catch (e) {}
     });
   </script>
-  <script src="/static/translate.js"></script>
-  <script src="/static/translate.js"></script>
-  <script src="/static/language-switcher.js"></script>
 </body>
 </html>
